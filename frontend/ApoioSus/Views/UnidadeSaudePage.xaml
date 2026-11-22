@@ -56,7 +56,7 @@
 
 			<!-- Passo 1: escolher o município -->
 			<Grid Grid.Row="2" RowDefinitions="Auto,Auto,*" RowSpacing="12" IsVisible="{Binding EscolhendoMunicipio}">
-				<Label Grid.Row="0" Text="Escolha o município de São Paulo para ver as UPAs do SUS." Style="{StaticResource Detalhe}" />
+				<Label Grid.Row="0" Text="Escolha o município de São Paulo para consultar as unidades de saúde do SUS." Style="{StaticResource Detalhe}" />
 				<Border Grid.Row="1" Style="{StaticResource CampoBusca}">
 					<Grid ColumnDefinitions="24,*" ColumnSpacing="10">
 						<Image Grid.Column="0" Source="ic_busca.png" WidthRequest="20" HeightRequest="20" />
@@ -75,7 +75,7 @@
 				</CollectionView>
 			</Grid>
 
-			<!-- Passo 2: UPAs do município (mapa ou lista) -->
+			<!-- Passo 2: unidades de saúde do município (mapa ou lista) -->
 			<Grid Grid.Row="2" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="12" IsVisible="{Binding MostrandoUnidades}">
 
 				<Border Grid.Row="0" Style="{StaticResource CampoBusca}">
@@ -130,7 +130,7 @@
 
 				<ActivityIndicator Grid.Row="2" IsRunning="{Binding Carregando}" IsVisible="{Binding Carregando}" />
 
-				<Label Grid.Row="3" Text="Nenhuma UPA do SUS encontrada neste município." TextColor="Gray"
+				<Label Grid.Row="3" Text="Nenhuma unidade de saúde do SUS encontrada neste município." TextColor="Gray"
 				       HorizontalOptions="Center" Margin="0,24,0,0" IsVisible="{Binding SemUnidades}" />
 
 				<!-- Modo mapa: desenho de mapa (modelo) e cartão da unidade escolhida -->

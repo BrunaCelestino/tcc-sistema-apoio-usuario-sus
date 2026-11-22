@@ -7,7 +7,7 @@ using ApoioSus.Services.Api;
 
 namespace ApoioSus.ViewModels;
 
-// Uma linha da lista de UPAs.
+// Uma linha da lista de unidades de saúde.
 public class UnidadeItem
 {
 	public string Titulo { get; }
@@ -197,7 +197,7 @@ public class UnidadeSaudeViewModel : ViewModelBase
 		}
 	}
 
-	// Tocar em um município da lista busca as UPAs dele.
+	// Tocar em um município da lista busca as unidades de saúde dele.
 	private MunicipioDados? _municipioTocado;
 	public MunicipioDados? MunicipioTocado
 	{
@@ -227,7 +227,7 @@ public class UnidadeSaudeViewModel : ViewModelBase
 
 	public bool EscolhendoMunicipio => Municipio is null;
 	public bool MostrandoUnidades => Municipio is not null;
-	public string TituloResultado => Municipio is null ? "" : $"UPAs do SUS em {Municipio.Nome}";
+	public string TituloResultado => Municipio is null ? "" : $"Unidades de saúde do SUS em {Municipio.Nome}";
 
 	private bool _buscou;
 	private bool _temMais;
@@ -237,7 +237,7 @@ public class UnidadeSaudeViewModel : ViewModelBase
 		private set => SetProperty(ref _temMais, value);
 	}
 
-	// A busca terminou sem erro e não achou nenhuma UPA do SUS.
+	// A busca terminou sem erro e não encontrou unidades de saúde do SUS.
 	public bool SemUnidades => Municipio is not null && _buscou && _todasUnidades.Count == 0 && !Carregando
 		&& ErroGeral == "";
 
