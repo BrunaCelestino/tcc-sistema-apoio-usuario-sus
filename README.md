@@ -2,9 +2,16 @@
 
 Aplicativo para centralizar dados de saúde informados pelo próprio usuário e facilitar o acesso a informações públicas do SUS, como as UPAs de cada município do Estado de São Paulo. Projeto de estudo (TCC).
 
-- **App:** .NET MAUI (C#, XAML) com MVVM escrito à mão, sem biblioteca. Roda no Windows.
-- **API:** Java 21 puro (sem Spring), servidor HTTP do JDK e JDBC, com **MySQL 8 como banco padrão**.
-- **Documentação:** a especificação, o contrato detalhado da API, as decisões, as fontes públicas e o andamento ficam em documentos locais, fora deste repositório.
+## Estrutura do repositório
+
+```text
+backend/       API Java 21, migrations MySQL e testes automatizados
+frontend/      Aplicativo .NET MAUI (C#, XAML)
+README.md      Documentação e instruções do projeto
+```
+
+- **Frontend:** .NET MAUI (C#, XAML) com MVVM escrito à mão, sem biblioteca. Roda no Windows.
+- **Backend:** Java 21 puro (sem Spring), servidor HTTP do JDK e JDBC, com **MySQL 8 como banco padrão**.
 
 Os dados pessoais são autodeclarados: o app não acessa prontuários oficiais e não faz diagnóstico.
 
@@ -52,16 +59,18 @@ CREATE USER IF NOT EXISTS 'apoio_sus'@'localhost' IDENTIFIED BY 'troque-esta-sen
 GRANT ALL PRIVILEGES ON apoio_sus.* TO 'apoio_sus'@'localhost';
 ```
 
-A API cria as tabelas automaticamente na primeira execução, usando as migrations em `backend-java/src/main/resources/db/migration/mysql/`.
+A API cria as tabelas automaticamente na primeira execução, usando as migrations em `backend/src/main/resources/db/migration/mysql/`.
 
 ## Executar
 
-Abra dois terminais PowerShell na pasta `sistema-apoio-usuario-sus`.
+Abra dois terminais PowerShell na raiz do repositório.
 
 ### 1. API
 
+No primeiro terminal:
+
 ```powershell
-cd backend-java
+cd backend
 $env:DB_URL = "jdbc:mysql://localhost:3306/apoio_sus?useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL"
 $env:DB_USUARIO = "apoio_sus"
 $env:DB_SENHA = "troque-esta-senha"
@@ -74,8 +83,10 @@ Não versione nem compartilhe sua senha real.
 
 ### 2. Aplicativo
 
+No segundo terminal:
+
 ```powershell
-cd mobile\ApoioSus
+cd frontend\ApoioSus
 dotnet build -f net10.0-windows10.0.19041.0
 .\bin\Debug\net10.0-windows10.0.19041.0\win-x64\ApoioSus.exe
 ```
@@ -92,10 +103,10 @@ CREATE DATABASE IF NOT EXISTS apoio_sus_teste
 GRANT ALL PRIVILEGES ON apoio_sus_teste.* TO 'apoio_sus'@'localhost';
 ```
 
-Execute:
+Execute em um terminal na raiz do repositório:
 
 ```powershell
-cd backend-java
+cd backend
 $env:TESTE_MYSQL_URL = "jdbc:mysql://localhost:3306/apoio_sus_teste?user=apoio_sus&password=troque-esta-senha&useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL"
 .\mvnw.cmd test
 ```
