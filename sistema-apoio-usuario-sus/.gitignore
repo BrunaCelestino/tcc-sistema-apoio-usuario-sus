@@ -1,5 +1,4 @@
-﻿# Backend
-backend/target/
+# Backend Java
 backend-java/target/
 *.db
 *.db-journal
@@ -15,6 +14,6 @@ mobile/**/obj/
 # Documentação interna (não vai para o repositório)
 /docs/
 /PLANEJAMENTO.md
-# Ferramentas locais (configuração do Claude Code e saídas do Playwright)
+# Ferramentas locais
 .claude/
 .playwright-mcp/
