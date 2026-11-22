@@ -55,8 +55,8 @@ No MySQL Workbench, conectado como administrador, execute:
 CREATE DATABASE IF NOT EXISTS apoio_usuario_sus
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
-CREATE USER IF NOT EXISTS 'apoio_usuario_sus'@'localhost' IDENTIFIED BY 'troque-esta-senha';
-GRANT ALL PRIVILEGES ON apoio_usuario_sus.* TO 'apoio_usuario_sus'@'localhost';
+CREATE USER IF NOT EXISTS 'apoio_sus'@'localhost' IDENTIFIED BY 'troque-esta-senha';
+GRANT ALL PRIVILEGES ON apoio_usuario_sus.* TO 'apoio_sus'@'localhost';
 ```
 
 A API cria as tabelas automaticamente na primeira execução, usando as migrations em `backend/src/main/resources/db/migration/mysql/`.
@@ -116,14 +116,14 @@ Os testes usam MySQL para validar a mesma tecnologia de banco usada na aplicaç�
 ```sql
 CREATE DATABASE IF NOT EXISTS apoio_usuario_sus_teste
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-GRANT ALL PRIVILEGES ON apoio_usuario_sus_teste.* TO 'apoio_usuario_sus'@'localhost';
+GRANT ALL PRIVILEGES ON apoio_usuario_sus_teste.* TO 'apoio_sus'@'localhost';
 ```
 
 Execute em um terminal na raiz do repositório:
 
 ```powershell
 cd backend
-$env:TESTE_MYSQL_URL = "jdbc:mysql://localhost:3306/apoio_usuario_sus_teste?user=apoio_usuario_sus&password=sua-senha-do-mysql&useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL"
+$env:TESTE_MYSQL_URL = "jdbc:mysql://localhost:3306/apoio_usuario_sus_teste?user=apoio_sus&password=sua-senha-do-mysql&useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL"
 .\mvnw.cmd test
 ```
 
