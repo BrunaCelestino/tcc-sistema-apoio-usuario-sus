@@ -100,7 +100,7 @@ CREATE USER IF NOT EXISTS 'apoio_sus'@'localhost'
 GRANT ALL PRIVILEGES ON apoio_usuario_sus.* TO 'apoio_sus'@'localhost';
 ```
 
-As migrations em `backend/src/main/resources/db/migration/mysql/` criam e atualizam o esquema de oito tabelas do modelo de dados do TCC: `usuario`, `perfil_saude`, `vacina`, `medicamento`, `unidade_saude`, `campanha_vacinacao`, `orientacao_saude` e `analise_sintoma`. As tabelas `sessao` e `recuperacao_senha` são adicionais, utilizadas pela autenticação. O arquivo `docs/schema_mysql_atual.sql` apresenta o esquema consolidado. A tabela `schema_migracao` é criada pelo inicializador para controlar as migrations aplicadas.
+A migration inicial `V1__schema_inicial.sql` em `backend/src/main/resources/db/migration/mysql/` cria as oito tabelas do modelo de dados do TCC: `usuario`, `perfil_saude`, `vacina`, `medicamento`, `unidade_saude`, `campanha_vacinacao`, `orientacao_saude` e `analise_sintoma`. As tabelas `sessao` e `recuperacao_senha` são adicionais, utilizadas pela autenticação. O arquivo `docs/schema_mysql_atual.sql` apresenta o esquema consolidado. A tabela `schema_migracao` é criada pelo inicializador para controlar as migrations aplicadas.
 
 ## Configuração da API
 
