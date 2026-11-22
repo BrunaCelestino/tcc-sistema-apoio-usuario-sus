@@ -34,8 +34,10 @@ public class CnesClient {
     // O CNES entrega no máximo 20 registros por página.
     public static final int POR_PAGINA = 20;
 
-    // Tipo de unidade 73 = pronto atendimento (UPA, AMA 24h etc.).
-    private static final String TIPO_PRONTO_ATENDIMENTO = "73";
+    // Categorias solicitadas em uma única requisição SOAP:
+    // 02 = Centro de Saúde / Unidade Básica; 73 = Pronto Atendimento;
+    // 05 = Hospital Geral; 07 = Hospital Especializado.
+    private static final List<String> TIPOS_UNIDADE = List.of("02", "73", "05", "07");
 
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
     private final String url;
@@ -109,14 +111,25 @@ public class CnesClient {
                 <l:Localizacao><l:longitude>0</l:longitude><l:latitude>0</l:latitude></l:Localizacao>\
                 <m:codigoIBGE>%s</m:codigoIBGE>\
                 </localidade>\
-                <lt:ListaTipoUnidade><lt:tipoUnidade><tu:codigo>%s</tu:codigo></lt:tipoUnidade></lt:ListaTipoUnidade>\
+                %s\
                 </f:FiltroPesquisaEstabelecimentoSaude>\
                 <p:Paginacao><p:registroInicial>%d</p:registroInicial><p:quantidadeRegistros>%d</p:quantidadeRegistros></p:Paginacao>\
                 </tns:requestPesquisarEstabelecimentoSaude>\
                 </soap:Body>\
                 </soap:Envelope>"""
-                .formatted(escapar(usuario), escapar(senha), escapar(codigoMunicipio), TIPO_PRONTO_ATENDIMENTO, inicio,
+                .formatted(escapar(usuario), escapar(senha), escapar(codigoMunicipio), montarListaTiposUnidade(), inicio,
                         POR_PAGINA);
+    }
+
+    // Monta elementos repetidos porque o filtro SOAP é uma lista de tipos de unidade.
+    private static String montarListaTiposUnidade() {
+        StringBuilder xml = new StringBuilder("<lt:ListaTipoUnidade>");
+        for (String codigo : TIPOS_UNIDADE) {
+            xml.append("<lt:tipoUnidade><tu:codigo>")
+                    .append(codigo)
+                    .append("</tu:codigo></lt:tipoUnidade>");
+        }
+        return xml.append("</lt:ListaTipoUnidade>").toString();
     }
 
     private static List<Unidade> lerUnidades(String xml) throws Exception {

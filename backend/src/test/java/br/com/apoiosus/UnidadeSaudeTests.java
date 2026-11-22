@@ -62,14 +62,19 @@ class UnidadeSaudeTests {
 	}
 
 	@Test
-	void enviaAoCnesOMunicipioOTipoEAAutenticacao() throws Exception {
+	void enviaAoCnesOMunicipioETodosOsTiposEAAutenticacao() throws Exception {
 		try (var cnes = new CnesFalso(i -> CnesFalso.semResultado()); var api = new ServidorDeTeste(cnes.cliente())) {
 			api.get(UPAS + "?municipio=" + SANTOS, api.cadastrarELogar());
 
 			assertEquals(1, cnes.requisicoes.size());
 			String corpo = cnes.requisicoes.get(0);
 			assertTrue(corpo.contains("<m:codigoIBGE>354850</m:codigoIBGE>"));
-			assertTrue(corpo.contains("<tu:codigo>73</tu:codigo>"));
+			assertTrue(corpo.contains("<tu:codigo>02</tu:codigo>"));
+            assertTrue(corpo.contains("<tu:codigo>73</tu:codigo>"));
+            assertTrue(corpo.contains("<tu:codigo>05</tu:codigo>"));
+            assertTrue(corpo.contains("<tu:codigo>07</tu:codigo>"));
+            assertEquals(4, corpo.split("<lt:tipoUnidade>", -1).length - 1,
+                    "os quatro tipos devem ser enviados na mesma requisição SOAP");
 			assertTrue(corpo.contains("<wsse:Username>usuario</wsse:Username>"));
 			assertTrue(corpo.contains(">senha</wsse:Password>"));
 			assertTrue(corpo.contains("registroInicial>1<"));
