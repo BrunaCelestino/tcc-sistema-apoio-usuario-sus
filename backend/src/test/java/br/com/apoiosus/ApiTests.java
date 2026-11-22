@@ -33,13 +33,14 @@ class ApiTests {
 
 	@Test
 	void migrationCriaAsTabelasPrincipais() throws Exception {
-		String nomes = "('usuario','perfil_saude','vacina','medicamento','sessao',"
+		String nomes = "('usuario','perfil_saude','vacina','medicamento','unidade_saude',"
+				+ "'campanha_vacinacao','orientacao_saude','analise_sintoma','sessao',"
 				+ "'recuperacao_senha','schema_migracao')";
 		int tabelas = api.ehMysql()
 				? api.contar("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE() "
 						+ "AND table_name IN " + nomes)
 				: api.contar("SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name IN " + nomes);
-		assertEquals(7, tabelas);
+		assertEquals(11, tabelas);
 	}
 
 	@Test
