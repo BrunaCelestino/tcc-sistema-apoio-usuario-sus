@@ -13,16 +13,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-// Conexão com o banco (SQLite ou MySQL, conforme o início da URL JDBC) e criação das tabelas (migrations).
-// Cada banco tem a sua pasta de migrations em resources/db/migration/<sqlite|mysql>, com os mesmos nomes de arquivo.
+// MySQL é o banco principal; SQLite permanece disponível para testes locais temporários.
 public class Banco {
 
-    // Em ordem. Para mudar o banco, crie um novo arquivo V<n> em cada pasta e acrescente aqui.
     private static final String[] MIGRATIONS = {
             "V1__schema_inicial.sql", "V2__sessao.sql", "V3__recuperacao_senha.sql" };
 
-    // Data e hora gravadas como texto "aaaa-mm-dd hh:mm:ss.ffffff": os dois bancos aceitam, e o MySQL
-    // guarda no máximo 6 casas decimais de segundo.
     private static final DateTimeFormatter DATA_HORA = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS");
 
     private final String url;
@@ -41,24 +37,20 @@ public class Banco {
         return "mysql".equals(pasta);
     }
 
-    // Texto para gravar uma data e hora numa coluna TIMESTAMP/DATETIME.
     public static String gravar(LocalDateTime dataHora) {
         return DATA_HORA.format(dataHora);
     }
 
-    // Lê uma data e hora gravada por este banco (aceita o "T" do formato antigo e o espaço do MySQL).
     public static LocalDateTime ler(String texto) {
         return LocalDateTime.parse(texto.replace(' ', 'T'));
     }
 
-    // O banco recusou por chave duplicada (UNIQUE)? SQLite e MySQL usam mensagens e códigos diferentes.
     public static boolean ehChaveDuplicada(SQLException e) {
         String mensagem = e.getMessage();
         return e.getErrorCode() == 1062 || (mensagem != null
                 && (mensagem.contains("UNIQUE constraint failed") || mensagem.contains("Duplicate entry")));
     }
 
-    // Roda só as migrations que ainda não foram aplicadas (controle na tabela schema_migracao).
     public void criarTabelas() throws Exception {
         try (Connection c = conectar(); Statement st = c.createStatement()) {
             st.execute("CREATE TABLE IF NOT EXISTS schema_migracao ("
@@ -95,9 +87,12 @@ public class Banco {
         }
     }
 
-    // Lê o arquivo .sql, ignora linhas de comentário (--) e separa os comandos por ';'.
     private List<String> lerComandos(String arquivo) throws Exception {
-        try (InputStream in = Banco.class.getClassLoader().getResourceAsStream("db/migration/" + pasta + "/" + arquivo)) {
+        try (InputStream in = Banco.class.getClassLoader()
+                .getResourceAsStream("db/migration/" + pasta + "/" + arquivo)) {
+            if (in == null) {
+                throw new IllegalStateException("Migration não encontrada: " + pasta + "/" + arquivo);
+            }
             String sql = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             StringBuilder semComentarios = new StringBuilder();
             for (String linha : sql.split("\\R")) {
