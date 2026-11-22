@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJtYXJpYUBleGFtcGxlLmNvbSIsImlhdCI6MTc5MTgzNzgzOSwiZXhwIjoxNzkxODQxNDM5fQ.HIaf_UotL0kDKh7VSi7KlKtpdfF2XB2tKlUZEM0zjjg
+@token = COLE_AQUI_O_TOKEN_RETORNADO_PELO_LOGIN
 @vacinaId = 3
 @medicamentoId = 1
 
