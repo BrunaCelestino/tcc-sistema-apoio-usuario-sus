@@ -52,26 +52,26 @@ App .NET MAUI (Windows) ──HTTP/JSON──▶ API Java 21 (JDK HttpServer) �
 No MySQL Workbench, conectado como administrador, execute:
 
 ```sql
-CREATE DATABASE IF NOT EXISTS apoio_sus
+CREATE DATABASE IF NOT EXISTS apoio_usuario_sus
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
-CREATE USER IF NOT EXISTS 'apoio_sus'@'localhost' IDENTIFIED BY 'troque-esta-senha';
-GRANT ALL PRIVILEGES ON apoio_sus.* TO 'apoio_sus'@'localhost';
+CREATE USER IF NOT EXISTS 'apoio_usuario_sus'@'localhost' IDENTIFIED BY 'troque-esta-senha';
+GRANT ALL PRIVILEGES ON apoio_usuario_sus.* TO 'apoio_usuario_sus'@'localhost';
 ```
 
 A API cria as tabelas automaticamente na primeira execução, usando as migrations em `backend/src/main/resources/db/migration/mysql/`.
 
 ## Configuração da aplicação
 
-As configurações padrão ficam em `backend/src/main/resources/application.properties`. O arquivo é carregado pelo backend Java ao iniciar. Ele reúne porta da API, conexão MySQL, validade da sessão, validade da recuperação de senha e endereço/credenciais públicas do serviço CNES.
+As configurações padrão ficam em `backend/src/main/resources/application.properties`. O arquivo é carregado pelo backend Java ao iniciar. Ele reúne porta da API, conexão MySQL para o banco `apoio_usuario_sus`, validade da sessão, validade da recuperação de senha e endereço/credenciais públicas do serviço CNES.
 
 As variáveis de ambiente sobrescrevem os valores do arquivo. A senha do MySQL não fica preenchida no arquivo versionado: informe-a em `DB_SENHA`.
 
 | Propriedade | Variável de ambiente | Padrão |
 | --- | --- | --- |
 | `api.port` | `API_PORT` | `8080` |
-| `database.url` | `DB_URL` | MySQL local, banco `apoio_sus` |
-| `database.username` | `DB_USUARIO` | `apoio_sus` |
+| `database.url` | `DB_URL` | MySQL local, banco `apoio_usuario_sus` |
+| `database.username` | `DB_USUARIO` | `apoio_usuario_sus` |
 | `database.password` | `DB_SENHA` | Vazia; configure por variável de ambiente |
 | `session.hours-validity` | `SESSAO_HORAS_VALIDADE` | `24` |
 | `password-recovery.minutes-validity` | `RECUPERACAO_MINUTOS_VALIDADE` | `30` |
@@ -114,20 +114,20 @@ O aplicativo se conecta a `http://localhost:8080`. Feche-o antes de recompilar.
 Os testes usam MySQL para validar a mesma tecnologia de banco usada na aplicação. Crie um banco separado e exclusivo:
 
 ```sql
-CREATE DATABASE IF NOT EXISTS apoio_sus_teste
+CREATE DATABASE IF NOT EXISTS apoio_usuario_sus_teste
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-GRANT ALL PRIVILEGES ON apoio_sus_teste.* TO 'apoio_sus'@'localhost';
+GRANT ALL PRIVILEGES ON apoio_usuario_sus_teste.* TO 'apoio_usuario_sus'@'localhost';
 ```
 
 Execute em um terminal na raiz do repositório:
 
 ```powershell
 cd backend
-$env:TESTE_MYSQL_URL = "jdbc:mysql://localhost:3306/apoio_sus_teste?user=apoio_sus&password=sua-senha-do-mysql&useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL"
+$env:TESTE_MYSQL_URL = "jdbc:mysql://localhost:3306/apoio_usuario_sus_teste?user=apoio_usuario_sus&password=sua-senha-do-mysql&useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL"
 .\mvnw.cmd test
 ```
 
-**Atenção:** a suíte apaga e recria as tabelas do banco informado em `TESTE_MYSQL_URL`. Use somente o banco `apoio_sus_teste`, nunca o banco da aplicação. Para usar SQLite temporário nos testes, configure `TESTE_SQLITE=true`.
+**Atenção:** a suíte apaga e recria as tabelas do banco informado em `TESTE_MYSQL_URL`. Use somente o banco `apoio_usuario_sus_teste`, nunca o banco da aplicação. Para usar SQLite temporário nos testes, configure `TESTE_SQLITE=true`.
 
 ## Segurança e limitações
 
