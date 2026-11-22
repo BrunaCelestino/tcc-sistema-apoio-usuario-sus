@@ -146,17 +146,17 @@
 							<Shadow Brush="#1E6BD6" Opacity="0.14" Radius="12" Offset="0,-2" />
 						</Border.Shadow>
 						<VerticalStackLayout Spacing="10" x:DataType="vm:UnidadeSaudeViewModel">
-							<Label Text="{Binding Selecionada.Titulo}" FontSize="18" FontAttributes="Bold" />
+							<Label Text="{Binding TituloSelecionada}" FontSize="18" FontAttributes="Bold" />
 							<Grid ColumnDefinitions="24,*" ColumnSpacing="10">
 								<Image Grid.Column="0" Source="ic_local.png" WidthRequest="20" HeightRequest="20" VerticalOptions="Start" />
 								<VerticalStackLayout Grid.Column="1">
-									<Label Text="{Binding Selecionada.Rua}" Style="{StaticResource Detalhe}" TextColor="{AppThemeBinding Light=#2A3547, Dark=White}" />
-									<Label Text="{Binding Selecionada.Bairro}" Style="{StaticResource Detalhe}" TextColor="{AppThemeBinding Light=#2A3547, Dark=White}" />
+									<Label Text="{Binding RuaSelecionada}" Style="{StaticResource Detalhe}" TextColor="{AppThemeBinding Light=#2A3547, Dark=White}" />
+									<Label Text="{Binding BairroSelecionada}" Style="{StaticResource Detalhe}" TextColor="{AppThemeBinding Light=#2A3547, Dark=White}" />
 								</VerticalStackLayout>
 							</Grid>
-							<Grid ColumnDefinitions="24,*" ColumnSpacing="10" IsVisible="{Binding Selecionada.TemTelefone}">
+							<Grid ColumnDefinitions="24,*" ColumnSpacing="10" IsVisible="{Binding TemTelefoneSelecionada}">
 								<Image Grid.Column="0" Source="ic_telefone.png" WidthRequest="20" HeightRequest="20" />
-								<Label Grid.Column="1" Text="{Binding Selecionada.Telefone}" Style="{StaticResource Detalhe}" TextColor="{AppThemeBinding Light=#2A3547, Dark=White}" />
+								<Label Grid.Column="1" Text="{Binding TelefoneSelecionada}" Style="{StaticResource Detalhe}" TextColor="{AppThemeBinding Light=#2A3547, Dark=White}" />
 							</Grid>
 							<Button Text="Ver rotas" Command="{Binding VerRotasCommand}" CornerRadius="12" FontAttributes="Bold"
 							        HeightRequest="48" Margin="0,4,0,0" />

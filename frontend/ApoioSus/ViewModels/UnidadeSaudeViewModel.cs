@@ -127,10 +127,26 @@ public class UnidadeSaudeViewModel : ViewModelBase
 		private set
 		{
 			if (SetProperty(ref _selecionada, value))
+			{
 				Notificar(nameof(TemSelecionada));
+				Notificar(nameof(TituloSelecionada));
+				Notificar(nameof(RuaSelecionada));
+				Notificar(nameof(BairroSelecionada));
+				Notificar(nameof(TemTelefoneSelecionada));
+				Notificar(nameof(TelefoneSelecionada));
+			}
 		}
 	}
+
 	public bool TemSelecionada => Selecionada is not null;
+
+	// Propriedades planas e não anuláveis para os bindings do XAML.
+	// Evitam que Selecionada?.Propriedade gere bool? ou string? nos bindings compilados.
+	public string TituloSelecionada => Selecionada?.Titulo ?? "";
+	public string RuaSelecionada => Selecionada?.Rua ?? "";
+	public string BairroSelecionada => Selecionada?.Bairro ?? "";
+	public bool TemTelefoneSelecionada => Selecionada?.TemTelefone == true;
+	public string TelefoneSelecionada => Selecionada?.Telefone ?? "";
 
 	// Tocar em um cartão da lista mostra a unidade no modo mapa.
 	public void Selecionar(UnidadeItem item)
