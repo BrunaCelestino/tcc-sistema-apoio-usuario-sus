@@ -37,9 +37,13 @@ import br.com.apoiosus.service.VacinaService;
 
 public class ApoioSusApplication {
 
+    // MySQL 8 é o banco padrão. DB_URL pode ser informado para ambientes diferentes.
+    private static final String DB_URL_PADRAO =
+            "jdbc:mysql://localhost:3306/apoio_sus?useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL";
+
     public static void main(String[] args) throws Exception {
         int porta = Integer.parseInt(variavel("API_PORT", "8080"));
-        String dbUrl = comCredenciais(variavel("DB_URL", "jdbc:mysql://localhost:3306/apoio_sus?createDatabaseIfNotExist=true"));
+        String dbUrl = comCredenciais(variavel("DB_URL", DB_URL_PADRAO));
         long horasSessao = Long.parseLong(variavel("SESSAO_HORAS_VALIDADE", "24"));
         long minutosRecuperacao = Long.parseLong(variavel("RECUPERACAO_MINUTOS_VALIDADE", "30"));
 
@@ -95,7 +99,7 @@ public class ApoioSusApplication {
         return servidor;
     }
 
-    // Para MySQL: acrescenta DB_USUARIO e DB_SENHA à URL (assim a senha não precisa ficar escrita em DB_URL).
+    // As credenciais ficam em variáveis de ambiente, nunca versionadas no código.
     private static String comCredenciais(String url) {
         String usuario = variavel("DB_USUARIO", "");
         String senha = variavel("DB_SENHA", "");
