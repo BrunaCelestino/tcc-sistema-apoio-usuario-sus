@@ -5,7 +5,7 @@ Aplicativo para centralizar dados de saúde informados pelo próprio usuário e 
 ## Estrutura do repositório
 
 ```text
-backend/       API Java 21, migrations MySQL e testes automatizados
+backend/       API Java 21, configuração, migrations MySQL e testes automatizados
 frontend/      Aplicativo .NET MAUI (C#, XAML)
 README.md      Documentação e instruções do projeto
 ```
@@ -47,7 +47,7 @@ App .NET MAUI (Windows) ──HTTP/JSON──▶ API Java 21 (JDK HttpServer) �
 - Internet para baixar dependências e consultar o CNES.
 - Portas 8080 (API) e 3306 (MySQL).
 
-## Configurar o banco
+## Configuração do banco
 
 No MySQL Workbench, conectado como administrador, execute:
 
@@ -61,6 +61,24 @@ GRANT ALL PRIVILEGES ON apoio_sus.* TO 'apoio_sus'@'localhost';
 
 A API cria as tabelas automaticamente na primeira execução, usando as migrations em `backend/src/main/resources/db/migration/mysql/`.
 
+## Configuração da aplicação
+
+As configurações padrão ficam em `backend/src/main/resources/application.properties`. O arquivo é carregado pelo backend Java ao iniciar. Ele reúne porta da API, conexão MySQL, validade da sessão, validade da recuperação de senha e endereço/credenciais públicas do serviço CNES.
+
+As variáveis de ambiente sobrescrevem os valores do arquivo. A senha do MySQL não fica preenchida no arquivo versionado: informe-a em `DB_SENHA`.
+
+| Propriedade | Variável de ambiente | Padrão |
+| --- | --- | --- |
+| `api.port` | `API_PORT` | `8080` |
+| `database.url` | `DB_URL` | MySQL local, banco `apoio_sus` |
+| `database.username` | `DB_USUARIO` | `apoio_sus` |
+| `database.password` | `DB_SENHA` | Vazia; configure por variável de ambiente |
+| `session.hours-validity` | `SESSAO_HORAS_VALIDADE` | `24` |
+| `password-recovery.minutes-validity` | `RECUPERACAO_MINUTOS_VALIDADE` | `30` |
+| `cnes.url` | `CNES_URL` | Serviço SOAP do CNES |
+| `cnes.username` | `CNES_USUARIO` | Credencial pública do CNES |
+| `cnes.password` | `CNES_SENHA` | Credencial pública do CNES |
+
 ## Executar
 
 Abra dois terminais PowerShell na raiz do repositório.
@@ -71,13 +89,11 @@ No primeiro terminal:
 
 ```powershell
 cd backend
-$env:DB_URL = "jdbc:mysql://localhost:3306/apoio_sus?useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL"
-$env:DB_USUARIO = "apoio_sus"
-$env:DB_SENHA = "troque-esta-senha"
-.\mvnw.cmd exec:java
+$env:DB_SENHA = "sua-senha-do-mysql"
+.mvnw.cmd exec:java
 ```
 
-A API também possui essa URL como padrão; as variáveis permitem configurar credenciais sem escrevê-las no código. Verifique `http://localhost:8080/api/ping`, que deve responder `{"status":"ok"}`.
+Para um ambiente diferente, também é possível sobrescrever `DB_URL`, `DB_USUARIO` ou `API_PORT`. Verifique `http://localhost:8080/api/ping`, que deve responder `{"status":"ok"}`.
 
 Não versione nem compartilhe sua senha real.
 
@@ -107,7 +123,7 @@ Execute em um terminal na raiz do repositório:
 
 ```powershell
 cd backend
-$env:TESTE_MYSQL_URL = "jdbc:mysql://localhost:3306/apoio_sus_teste?user=apoio_sus&password=troque-esta-senha&useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL"
+$env:TESTE_MYSQL_URL = "jdbc:mysql://localhost:3306/apoio_sus_teste?user=apoio_sus&password=sua-senha-do-mysql&useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL"
 .\mvnw.cmd test
 ```
 
@@ -118,7 +134,7 @@ $env:TESTE_MYSQL_URL = "jdbc:mysql://localhost:3306/apoio_sus_teste?user=apoio_s
 - Senhas armazenadas com hash PBKDF2-HMAC-SHA256 e salt individual.
 - Tokens aleatórios; o banco mantém apenas o hash SHA-256.
 - Usuários acessam somente seus próprios registros.
-- Credenciais do MySQL configuradas por variáveis de ambiente.
+- Credenciais do MySQL configuradas por variável de ambiente.
 - HTTP sem TLS e sem limite de tentativas de login/recuperação: uso acadêmico/desenvolvimento, não produção.
 - Código de recuperação exibido no log do backend, sem envio de e-mail.
 

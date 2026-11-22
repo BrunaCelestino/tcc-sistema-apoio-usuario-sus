@@ -7,51 +7,46 @@ import java.util.concurrent.Executors;
 
 import com.sun.net.httpserver.HttpServer;
 
+import br.com.apoiosus.config.Configuracao;
 import br.com.apoiosus.controller.AuthController;
-import br.com.apoiosus.controller.UnidadeSaudeController;
-import br.com.apoiosus.integration.CnesClient;
+import br.com.apoiosus.controller.MedicamentoController;
 import br.com.apoiosus.controller.OrientacaoController;
-import br.com.apoiosus.controller.SintomaController;
-import br.com.apoiosus.service.SintomaService;
-import br.com.apoiosus.service.OrientacaoService;
-import br.com.apoiosus.service.MunicipioService;
-import br.com.apoiosus.service.UnidadeSaudeService;
 import br.com.apoiosus.controller.PerfilSaudeController;
 import br.com.apoiosus.controller.PingController;
-import br.com.apoiosus.controller.MedicamentoController;
-import br.com.apoiosus.controller.VacinaController;
+import br.com.apoiosus.controller.SintomaController;
+import br.com.apoiosus.controller.UnidadeSaudeController;
 import br.com.apoiosus.controller.UsuarioController;
+import br.com.apoiosus.controller.VacinaController;
+import br.com.apoiosus.integration.CnesClient;
+import br.com.apoiosus.repository.MedicamentoRepository;
 import br.com.apoiosus.repository.PerfilSaudeRepository;
 import br.com.apoiosus.repository.RecuperacaoSenhaRepository;
 import br.com.apoiosus.repository.SessaoRepository;
 import br.com.apoiosus.repository.UsuarioRepository;
-import br.com.apoiosus.repository.MedicamentoRepository;
 import br.com.apoiosus.repository.VacinaRepository;
 import br.com.apoiosus.service.AuthService;
+import br.com.apoiosus.service.MedicamentoService;
+import br.com.apoiosus.service.MunicipioService;
+import br.com.apoiosus.service.OrientacaoService;
 import br.com.apoiosus.service.PerfilSaudeService;
 import br.com.apoiosus.service.RecuperacaoSenhaService;
 import br.com.apoiosus.service.SenhaService;
+import br.com.apoiosus.service.SintomaService;
+import br.com.apoiosus.service.UnidadeSaudeService;
 import br.com.apoiosus.service.UsuarioService;
-import br.com.apoiosus.service.MedicamentoService;
 import br.com.apoiosus.service.VacinaService;
 
 public class ApoioSusApplication {
 
-    // MySQL 8 é o banco padrão. DB_URL pode ser informado para ambientes diferentes.
-    private static final String DB_URL_PADRAO =
-            "jdbc:mysql://localhost:3306/apoio_sus?useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL";
-
     public static void main(String[] args) throws Exception {
-        int porta = Integer.parseInt(variavel("API_PORT", "8080"));
-        String dbUrl = comCredenciais(variavel("DB_URL", DB_URL_PADRAO));
-        long horasSessao = Long.parseLong(variavel("SESSAO_HORAS_VALIDADE", "24"));
-        long minutosRecuperacao = Long.parseLong(variavel("RECUPERACAO_MINUTOS_VALIDADE", "30"));
+        Configuracao config = Configuracao.carregar();
 
-        CnesClient cnes = new CnesClient(variavel("CNES_URL", CnesClient.URL_PADRAO),
-                variavel("CNES_USUARIO", CnesClient.USUARIO_PADRAO), variavel("CNES_SENHA", CnesClient.SENHA_PADRAO));
+        String dbUrl = comCredenciais(config);
+        CnesClient cnes = new CnesClient(config.cnesUrl(), config.cnesUsuario(), config.cnesSenha());
 
-        iniciar(porta, dbUrl, horasSessao, minutosRecuperacao, cnes);
-        System.out.println("Apoio SUS (Java puro) em http://localhost:" + porta);
+        iniciar(config.apiPorta(), dbUrl, config.sessaoHorasValidade(),
+                config.recuperacaoMinutosValidade(), cnes);
+        System.out.println("Apoio SUS (Java puro) em http://localhost:" + config.apiPorta());
     }
 
     public static HttpServer iniciar(int porta, String dbUrl, long horasSessao, long minutosRecuperacao)
@@ -99,19 +94,16 @@ public class ApoioSusApplication {
         return servidor;
     }
 
-    // As credenciais ficam em variáveis de ambiente, nunca versionadas no código.
-    private static String comCredenciais(String url) {
-        String usuario = variavel("DB_USUARIO", "");
-        String senha = variavel("DB_SENHA", "");
-        if (!url.startsWith("jdbc:mysql:") || usuario.isEmpty()) {
+    // A senha e o usuário podem ser fornecidos por variáveis de ambiente, sem gravá-los no repositório.
+    private static String comCredenciais(Configuracao config) {
+        String url = config.databaseUrl();
+        if (!url.startsWith("jdbc:mysql:") || config.databaseUsuario().isBlank()) {
             return url;
         }
-        return url + (url.contains("?") ? "&" : "?") + "user=" + URLEncoder.encode(usuario, StandardCharsets.UTF_8)
-                + "&password=" + URLEncoder.encode(senha, StandardCharsets.UTF_8);
-    }
 
-    private static String variavel(String nome, String padrao) {
-        String valor = System.getenv(nome);
-        return valor == null || valor.isBlank() ? padrao : valor;
+        String separador = url.contains("?") ? "&" : "?";
+        return url + separador + "user="
+                + URLEncoder.encode(config.databaseUsuario(), StandardCharsets.UTF_8)
+                + "&password=" + URLEncoder.encode(config.databaseSenha(), StandardCharsets.UTF_8);
     }
 }
