@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8080
 @token = COLE_AQUI_O_TOKEN_RETORNADO_PELO_LOGIN
-@vacinaId = 3
+@vacinaId = 1
 @medicamentoId = 1
 
 ### 1. CADASTRAR USUARIO
@@ -9,7 +9,7 @@ Content-Type: application/json
 
 {
   "nome": "Maria Silva",
-  "email": "maria@example.com",
+  "email": "maria1@example.com",
   "senha": "Senha123!",
   "dataNascimento": "1995-05-20"
 }
@@ -19,7 +19,7 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "maria@example.com",
+  "email": "maria1@example.com",
   "senha": "Senha123!"
 }
 
@@ -53,7 +53,7 @@ POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "maria@example.com",
+  "email": "maria1@example.com",
   "senha": "SenhaErrada123!"
 }
 
@@ -135,7 +135,7 @@ Content-Type: application/json
   "localAplicacao": ""
 }
 
-### 18. CONSULTAR VACINA INEXISTENTE (ESPERADO: 4XX)
+### 18. CONSULTAR VACINA INEXISTENTE (ESPERADO: 4o4)
 GET {{baseUrl}}/api/vacinas/999999
 Authorization: Bearer {{token}}
 
@@ -143,7 +143,7 @@ Authorization: Bearer {{token}}
 DELETE {{baseUrl}}/api/vacinas/{{vacinaId}}
 Authorization: Bearer {{token}}
 
-### 20. CONFERIR EXCLUSAO DA VACINA (ESPERADO: 4XX)
+### 20. CONFERIR EXCLUSAO DA VACINA (ESPERADO: 404)
 GET {{baseUrl}}/api/vacinas/{{vacinaId}}
 Authorization: Bearer {{token}}
 
@@ -188,7 +188,7 @@ Content-Type: application/json
 GET {{baseUrl}}/api/medicamentos/{{medicamentoId}}
 Authorization: Bearer {{token}}
 
-### 27. CADASTRAR MEDICAMENTO COM DATAS INCONSISTENTES (ESPERADO: 4XX)
+### 27. CADASTRAR MEDICAMENTO COM DATAS INCONSISTENTES (ESPERADO: 400)
 POST {{baseUrl}}/api/medicamentos
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -201,7 +201,7 @@ Content-Type: application/json
   "dataFim": "2025-04-10"
 }
 
-### 28. CONSULTAR MEDICAMENTO INEXISTENTE (ESPERADO: 4XX)
+### 28. CONSULTAR MEDICAMENTO INEXISTENTE (ESPERADO: 404)
 GET {{baseUrl}}/api/medicamentos/999999
 Authorization: Bearer {{token}}
 
@@ -209,7 +209,7 @@ Authorization: Bearer {{token}}
 DELETE {{baseUrl}}/api/medicamentos/{{medicamentoId}}
 Authorization: Bearer {{token}}
 
-### 30. CONFERIR EXCLUSAO DO MEDICAMENTO (ESPERADO: 4XX)
+### 30. CONFERIR EXCLUSAO DO MEDICAMENTO (ESPERADO: 404)
 GET {{baseUrl}}/api/medicamentos/{{medicamentoId}}
 Authorization: Bearer {{token}}
 
