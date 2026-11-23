@@ -1,128 +1,230 @@
 # Apoio SUS
 
-Aplicativo multiplataforma para organizar dados pessoais relacionados à saúde e facilitar a consulta a informações públicas do Sistema Único de Saúde (SUS). Projeto desenvolvido como Trabalho de Conclusão de Curso.
+Aplicativo multiplataforma desenvolvido como Trabalho de Conclusão de Curso. O Apoio SUS reúne recursos para que o cidadão organize informações pessoais relacionadas à saúde e consulte informações sobre unidades públicas de atendimento.
 
-## Visão geral
+## Sobre o projeto
 
-- **Aplicativo:** .NET MAUI, C# e XAML, com organização MVVM.
-- **Backend:** Java 21, servidor HTTP do JDK e JDBC, sem Spring Boot.
-- **Banco principal:** MySQL 8.
-- **Fonte externa:** serviço SOAP do Cadastro Nacional de Estabelecimentos de Saúde (CNES).
-- **Testes do backend:** JUnit 5; a suíte contém 100 testes automatizados.
+O sistema é composto por um aplicativo desenvolvido com .NET MAUI e um backend em Java. O aplicativo se comunica com uma API própria, que aplica as regras de negócio, armazena os dados pessoais no MySQL e consulta o Cadastro Nacional de Estabelecimentos de Saúde (CNES) por meio de um serviço SOAP.
 
-O usuário cadastra seus próprios dados. O aplicativo não consulta prontuários oficiais, não realiza diagnóstico e não substitui o atendimento de profissionais de saúde.
+O objetivo é oferecer um espaço de organização pessoal e consulta informativa. O sistema não acessa prontuários oficiais, não se integra aos sistemas internos do SUS e não substitui a avaliação de profissionais de saúde.
 
-## Funcionalidades implementadas
+## Funcionalidades
 
-| Módulo | O que está disponível |
+### Conta e autenticação
+
+- Cadastro de usuário com nome, e-mail, senha e data de nascimento opcional.
+- Login e encerramento da sessão.
+- Consulta e atualização do nome e da data de nascimento da conta.
+- Exclusão da conta.
+- Recuperação e redefinição de senha por código temporário.
+
+**Observação sobre a recuperação de senha:** no ambiente acadêmico, o código é exibido no log do backend. O sistema não envia e-mail. O código expira conforme o tempo configurado no backend.
+
+### Perfil de saúde
+
+O perfil é criado automaticamente junto com a conta. O usuário pode consultar, atualizar ou limpar seus dados pessoais de saúde:
+
+- Peso e altura.
+- Tipo sanguíneo.
+- Alergias.
+- Observações médicas.
+
+Essas informações são mantidas para consulta pessoal do usuário. Não são enviadas a profissionais de saúde nem incorporadas a prontuários do SUS.
+
+### Histórico de vacinação
+
+O usuário pode cadastrar, consultar, atualizar e excluir seus próprios registros de vacinação. Cada registro pode conter nome da vacina, data de aplicação, lote e local de aplicação.
+
+O aplicativo não consulta a caderneta nacional de vacinação, não compara os registros com o calendário oficial e não identifica automaticamente vacinas pendentes.
+
+### Medicamentos
+
+O usuário pode cadastrar, consultar, atualizar e excluir medicamentos, registrando nome, dosagem, frequência e período de utilização. A interface organiza os registros em medicamentos em uso e histórico, conforme as datas informadas.
+
+Não há envio de lembretes, notificações ou controle automático de horários e doses.
+
+### Consulta de unidades de saúde
+
+O usuário seleciona manualmente um município do Estado de São Paulo. O backend consulta o serviço SOAP do CNES e retorna estabelecimentos identificados como integrantes do SUS.
+
+A consulta solicita quatro categorias de estabelecimento:
+
+- **02:** Centro de Saúde / Unidade Básica de Saúde.
+- **73:** Pronto Atendimento.
+- **05:** Hospital Geral.
+- **07:** Hospital Especializado.
+
+Os resultados são apresentados em uma lista, com informações de identificação, endereço e contato quando disponíveis. É possível pesquisar pelo nome ou endereço e abrir o endereço no Google Maps, em um serviço externo.
+
+**Limitações da localização:** a aplicação não utiliza GPS, não calcula distância, não determina automaticamente as unidades mais próximas e não posiciona marcadores em um mapa dinâmico. A visualização denominada Mapa utiliza uma imagem ilustrativa estática. A lista também não oferece filtro por distância ou categoria.
+
+A rota da API usada para essa consulta mantém o nome `/api/unidades-saude/upas` por compatibilidade com a implementação, embora os resultados incluam as quatro categorias descritas acima.
+
+### Orientações de saúde
+
+O aplicativo disponibiliza conteúdos gerais sobre prevenção, doenças e hábitos saudáveis. Os textos ficam no arquivo `backend/src/main/resources/orientacoes.json`, são carregados pelo backend na inicialização e enviados ao aplicativo pela API.
+
+O usuário pode pesquisar os conteúdos e filtrar por categoria. As orientações não são geradas por inteligência artificial nem consultadas dinamicamente em uma fonte externa.
+
+### Apoio informativo baseado em sintomas
+
+O usuário pode descrever sintomas em um campo de texto. O backend compara o texto com regras e palavras-chave previamente definidas em `backend/src/main/resources/sintomas.json` e retorna correspondências, orientações gerais e alertas para possíveis sinais de urgência.
+
+Esse recurso:
+
+- Utiliza correspondência de palavras-chave e regras fixas; não utiliza inteligência artificial.
+- Não realiza diagnóstico, triagem clínica, classificação de risco ou prescrição.
+- Não recomenda automaticamente uma unidade específica para o sintoma informado.
+- Não salva o texto digitado nem o resultado como histórico de análises.
+
+As informações são exclusivamente educativas e não substituem avaliação profissional. Em uma situação de urgência, o usuário deve procurar atendimento imediatamente ou acionar o serviço de emergência indicado no aplicativo.
+
+## Tecnologias utilizadas
+
+| Camada | Tecnologia |
 | --- | --- |
-| Autenticação | Cadastro, login, logout, recuperação e redefinição de senha. A tela de cadastro exige a confirmação de leitura dos Termos de Uso e da Política de Privacidade. |
-| Conta | Consultar dados da conta, atualizar nome e data de nascimento e excluir a conta. |
-| Perfil de saúde | Consultar, atualizar e limpar peso, altura, tipo sanguíneo, alergias e observações. |
-| Vacinas | Cadastrar, listar, consultar, editar e excluir registros pessoais de vacinação. |
-| Medicamentos | Cadastrar, listar, consultar, editar e excluir medicamentos, com separação entre Em uso e Histórico. |
-| Unidades de saúde | Selecionar um município do Estado de São Paulo e consultar estabelecimentos do SUS no CNES. A requisição solicita os tipos 02, 73, 05 e 07. A lista permite busca textual e abertura do endereço no Google Maps. |
-| Orientações de saúde | Consultar conteúdos gerais de prevenção, doenças e hábitos, carregados de `orientacoes.json`, com busca e filtro por categoria. |
-| Análise de sintomas | Informar sintomas em texto livre e receber orientações e alertas com base em regras e palavras-chave de `sintomas.json`. Não utiliza IA, não diagnostica e não armazena o texto informado. |
+| Aplicativo | C#, .NET MAUI 10 e XAML |
+| Organização da interface | MVVM |
+| Backend | Java 21, servidor HTTP do JDK (`HttpServer`) e JDBC |
+| API | HTTP e JSON |
+| Banco de dados principal | MySQL 8 |
+| Banco utilizado em testes locais | SQLite, opcional |
+| Integração externa | Serviço SOAP do CNES |
+| Testes automatizados do backend | JUnit Jupiter 6.1.3 |
+| Gerenciamento de dependências Java | Maven, com Maven Wrapper |
 
-### Limitações conhecidas
-
-- A consulta de unidades é feita pela seleção manual de município e está limitada aos municípios do Estado de São Paulo.
-- O backend envia ao CNES os códigos de tipo de estabelecimento **02 (Centro de Saúde/Unidade Básica), 73 (Pronto Atendimento), 05 (Hospital Geral) e 07 (Hospital Especializado)** e mantém apenas os estabelecimentos identificados como integrantes do SUS.
-- A tela ainda utiliza uma imagem ilustrativa no lugar de um mapa geográfico. Não usa GPS, não calcula distância e não identifica automaticamente as unidades mais próximas.
-- A API retorna a descrição do tipo de estabelecimento, mas a tela atual não disponibiliza filtro visual por categoria nem exibe a distância.
-- Campanhas públicas de vacinação, consulta pública de medicamentos e cálculo de vacinas pendentes não estão implementados.
-- Orientações e regras de análise de sintomas são conteúdos locais em arquivos JSON, não dados consultados dinamicamente de uma API.
-- As análises de sintomas não são salvas como histórico.
-- Não há lembretes de medicamentos. Essa funcionalidade complementar foi deixada fora do escopo.
-- A recuperação de senha não envia e-mail: o código temporário é apresentado no log do backend para uso no ambiente acadêmico.
-- A aplicação foi executada e testada no Windows. O projeto também contém alvo Android, mas a execução nesse ambiente deve ser validada separadamente.
-
-## Estrutura do repositório
-
-```text
-backend/
-  src/main/java/       API Java: controllers, services, repositories, models e integrações
-  src/main/resources/  application.properties, migrations, municipios-sp.csv,
-                       orientacoes.json e sintomas.json
-  src/test/java/       testes automatizados do backend
-  pom.xml
-  mvnw.cmd
-frontend/
-  ApoioSus/
-    Views/             telas XAML
-    ViewModels/        estado e comandos das telas
-    Models/            modelos de dados e DTOs
-    Services/          consumo da API, sessão, datas e utilitários
-    Platforms/         configurações específicas das plataformas
-docs/
-  schema_mysql_atual.sql  representação consolidada do esquema MySQL atual
-README.md
-```
+O backend não utiliza Spring Boot. Os componentes de controller, service, repository e model são organizados diretamente no projeto Java.
 
 ## Arquitetura
 
 ```text
 Aplicativo .NET MAUI
-       |
-       | HTTP / JSON (Authorization: Bearer)
-       v
+        |
+        | HTTP / JSON
+        | Authorization: Bearer <token>
+        v
 Backend Java 21 (JDK HttpServer)
-       |                         |
-       | JDBC                    | SOAP
-       v                         v
-MySQL 8                    Serviço CNES
+        |                         |
+        | JDBC                    | SOAP
+        v                         v
+     MySQL 8                 Serviço CNES
 ```
 
-O backend concentra as regras de negócio, a autenticação, as consultas ao MySQL e a comunicação com o CNES. O frontend consome os endpoints da API. A busca de unidades depende de conexão com a internet.
+O aplicativo é responsável pelas telas e pela interação com o usuário. O backend autentica as requisições, valida os dados, aplica as regras de negócio e acessa o banco de dados ou o serviço externo do CNES, conforme a funcionalidade solicitada.
 
-## Requisitos
+## Estrutura do repositório
 
-- Windows 10 ou superior (ambiente de execução validado: Windows 11).
+```text
+backend/
+  .mvn/wrapper/                 Configuração do Maven Wrapper
+  src/main/java/                Código-fonte Java
+    .../config/                 Leitura das configurações
+    .../controller/             Rotas HTTP da API
+    .../dto/                    Objetos de requisição e resposta
+    .../integration/             Integração SOAP com o CNES
+    .../model/                  Modelos de domínio
+    .../repository/             Acesso aos dados
+    .../service/                Regras de negócio
+  src/main/resources/
+    application.properties      Configurações padrão
+    db/migration/                Migrations MySQL e SQLite
+    municipios-sp.csv            Municípios do Estado de São Paulo
+    orientacoes.json             Conteúdos gerais de saúde
+    sintomas.json                Regras de análise informativa
+  src/test/java/                 Testes automatizados
+  requests.http                  Exemplos de chamadas à API
+  pom.xml
+  mvnw / mvnw.cmd
+frontend/
+  ApoioSus/
+    Models/                      Modelos e DTOs do aplicativo
+    Platforms/                   Configurações por plataforma
+    Resources/                   Imagens, fontes, ícones e estilos
+    Services/                    Comunicação com a API e sessão
+    ViewModels/                  Estado e comandos das telas
+    Views/                       Interfaces XAML
+    ApoioSus.csproj
+docs/
+  schema_mysql_atual.sql         Esquema consolidado das migrations
+README.md
+```
+
+## Requisitos para execução
+
+- Windows 10 ou superior para executar o aplicativo Windows.
 - JDK 21.
 - .NET SDK 10.
-- Workload MAUI para Windows.
-- MySQL Server 8.x.
-- Acesso à internet para baixar dependências e consultar o CNES.
-- Portas disponíveis: **8080** para a API e **3306** para MySQL.
+- Workload .NET MAUI instalado.
+- MySQL Server 8.
+- Conexão com a internet para restaurar dependências e consultar o CNES.
+
+Para conferir a instalação do .NET MAUI, execute:
+
+```powershell
+dotnet workload list
+```
+
+Se o workload MAUI ainda não estiver instalado:
+
+```powershell
+dotnet workload install maui
+```
 
 ## Configuração do banco de dados
 
-No MySQL Workbench, conectado como administrador, crie o banco e o usuário da aplicação:
+Com o MySQL em execução, crie o banco e um usuário para a aplicação. Substitua a senha de exemplo por uma senha local:
 
 ```sql
 CREATE DATABASE IF NOT EXISTS apoio_usuario_sus
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
 
 CREATE USER IF NOT EXISTS 'apoio_sus'@'localhost'
-  IDENTIFIED BY 'troque-esta-senha';
+    IDENTIFIED BY 'sua-senha-local';
 
-GRANT ALL PRIVILEGES ON apoio_usuario_sus.* TO 'apoio_sus'@'localhost';
+GRANT ALL PRIVILEGES ON apoio_usuario_sus.*
+    TO 'apoio_sus'@'localhost';
 ```
 
-A migration inicial `V1__schema_inicial.sql` em `backend/src/main/resources/db/migration/mysql/` cria as oito tabelas do modelo de dados do TCC: `usuario`, `perfil_saude`, `vacina`, `medicamento`, `unidade_saude`, `campanha_vacinacao`, `orientacao_saude` e `analise_sintoma`. As tabelas `sessao` e `recuperacao_senha` são adicionais, utilizadas pela autenticação. O arquivo `docs/schema_mysql_atual.sql` apresenta o esquema consolidado. A tabela `schema_migracao` é criada pelo inicializador para controlar as migrations aplicadas.
+Se o usuário já existir e for necessário trocar a senha, utilize `ALTER USER` no MySQL.
 
-## Configuração da API
+Na primeira inicialização, o backend executa automaticamente as migrations V1, V2 e V3. Não é necessário criar manualmente as tabelas. A tabela `schema_migracao` registra quais migrations já foram aplicadas.
 
-As configurações padrão ficam em `backend/src/main/resources/application.properties`. Variáveis de ambiente podem sobrescrever os valores.
+O arquivo `docs/schema_mysql_atual.sql` é uma representação consolidada do esquema MySQL correspondente às migrations. Ele serve como referência; a inicialização normal da aplicação deve utilizar as migrations.
 
-| Propriedade | Variável de ambiente | Padrão |
+### Tabelas e persistência
+
+As migrations incluem tabelas para usuários, perfil de saúde, vacinas, medicamentos, unidades de saúde, campanhas de vacinação, orientações, análises de sintomas, sessões e recuperação de senha.
+
+Nem todas essas tabelas são utilizadas pelos fluxos atuais do aplicativo:
+
+- Os dados de unidades são consultados diretamente no CNES e não são persistidos na tabela `unidade_saude`.
+- Os conteúdos de orientações são carregados de `orientacoes.json`, não da tabela `orientacao_saude`.
+- As regras de sintomas são carregadas de `sintomas.json`; os textos e resultados das análises não são gravados na tabela `analise_sintoma`.
+- A consulta de campanhas de vacinação ainda não está implementada; a tabela `campanha_vacinacao` permanece prevista no esquema.
+- As tabelas `sessao` e `recuperacao_senha` são utilizadas pela autenticação e recuperação de senha.
+
+## Configuração do backend
+
+As configurações padrão estão em `backend/src/main/resources/application.properties`. As variáveis de ambiente, quando informadas, substituem os valores do arquivo.
+
+| Configuração | Variável de ambiente | Valor padrão |
 | --- | --- | --- |
-| `api.port` | `API_PORT` | `8080` |
-| `database.url` | `DB_URL` | MySQL local, banco `apoio_usuario_sus` |
-| `database.username` | `DB_USUARIO` | `apoio_sus` |
-| `database.password` | `DB_SENHA` | Vazia no arquivo; informar no ambiente |
-| `session.hours-validity` | `SESSAO_HORAS_VALIDADE` | `24` horas |
-| `password-recovery.minutes-validity` | `RECUPERACAO_MINUTOS_VALIDADE` | `30` minutos |
-| `cnes.url` | `CNES_URL` | Endpoint SOAP do CNES |
-| `cnes.username` | `CNES_USUARIO` | Credencial pública do serviço |
-| `cnes.password` | `CNES_SENHA` | Credencial pública do serviço |
+| Porta da API | `API_PORT` | `8080` |
+| URL JDBC do banco | `DB_URL` | `jdbc:mysql://localhost:3306/apoio_usuario_sus?useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL` |
+| Usuário do banco | `DB_USUARIO` | `apoio_sus` |
+| Senha do banco | `DB_SENHA` | Vazia no arquivo; deve ser informada no ambiente |
+| Validade da sessão, em horas | `SESSAO_HORAS_VALIDADE` | `24` |
+| Validade do código de recuperação, em minutos | `RECUPERACAO_MINUTOS_VALIDADE` | `30` |
+| URL do CNES | `CNES_URL` | Endpoint SOAP configurado em `application.properties` |
+| Usuário do CNES | `CNES_USUARIO` | Valor definido em `application.properties` |
+| Senha do CNES | `CNES_SENHA` | Valor definido em `application.properties` |
 
-A senha do MySQL não deve ser gravada no arquivo versionado.
+Para uma configuração local, informe ao menos a senha do MySQL. Não grave senhas pessoais ou credenciais próprias no repositório.
 
-## Executar o sistema
+## Como executar
 
-Abra dois terminais PowerShell na raiz do repositório.
+Abra dois terminais PowerShell na pasta raiz do repositório. O banco MySQL deve estar ativo antes de iniciar o backend.
 
 ### 1. Iniciar o backend
 
@@ -130,57 +232,84 @@ No primeiro terminal:
 
 ```powershell
 cd backend
-$env:DB_SENHA = "sua-senha-do-mysql"
+$env:DB_SENHA = "sua-senha-local"
 .\mvnw.cmd clean compile exec:java
 ```
 
-Quando o servidor estiver iniciado, acesse:
+Na primeira execução, o Maven Wrapper poderá baixar a distribuição do Maven e as dependências do projeto. Após a inicialização, o backend informa o endereço da API no terminal.
 
-`http://localhost:8080/api/ping`
+Verifique se a API está ativa acessando:
 
-A resposta esperada é:
-
-```json
-{"status":"ok"}
+```text
+http://localhost:8080/api/ping
 ```
 
-### 2. Iniciar o aplicativo
+Resposta esperada:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+### 2. Iniciar o aplicativo no Windows
 
 No segundo terminal:
 
 ```powershell
 cd frontend\ApoioSus
-dotnet run -f net10.0-windows10.0.19041.0
+dotnet restore
+dotnet build -t:Run -f net10.0-windows10.0.19041.0
 ```
 
-O aplicativo Windows utiliza a API em `http://localhost:8080`. Mantenha o backend em execução enquanto utiliza o aplicativo. Feche o aplicativo antes de recompilar.
+O aplicativo Windows está configurado para acessar o backend em `http://localhost:8080`. Mantenha o backend em execução enquanto utiliza o aplicativo.
+
+### 3. Executar no Android
+
+O projeto também possui o alvo `net10.0-android`. Com o Android SDK, o workload MAUI e um emulador configurados, execute:
+
+```powershell
+cd frontend\ApoioSus
+dotnet build -t:Run -f net10.0-android
+```
+
+No Android, a aplicação utiliza `http://10.0.2.2:8080`, endereço que permite ao emulador Android acessar o backend executado no computador host.
+
+Para executar em um aparelho físico, será necessário ajustar `ApiService.BaseUrl`, em `frontend/ApoioSus/Services/Api/ApiService.cs`, para o endereço IP local do computador que hospeda o backend. O aparelho e o computador devem estar na mesma rede, e a porta 8080 deve estar liberada no firewall.
 
 ## Testes automatizados
 
-A suíte do backend contém **100 testes automatizados**, distribuídos entre autenticação, conta, perfil de saúde, vacinas, medicamentos, migrations, municípios, CNES, orientações, sintomas e sessões.
+O backend contém 100 métodos de teste com JUnit Jupiter 6.1.3, cobrindo rotas da API, autenticação, conta, perfil de saúde, vacinas, medicamentos, migrations, municípios, CNES, orientações e análise de sintomas.
 
-Por padrão, os testes exigem um banco MySQL exclusivo, pois a inicialização da suíte remove as tabelas desse banco antes de executar os casos.
+Os testes utilizam MySQL por padrão. **O banco informado em `TESTE_MYSQL_URL` é esvaziado antes da execução. Nunca utilize o banco de dados da aplicação ou um banco com informações importantes.**
 
-1. Crie um banco de testes separado:
+### Opção A — MySQL exclusivo para testes
+
+Crie um banco separado:
 
 ```sql
 CREATE DATABASE IF NOT EXISTS apoio_usuario_sus_teste
-  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
 
-GRANT ALL PRIVILEGES ON apoio_usuario_sus_teste.* TO 'apoio_sus'@'localhost';
+CREATE USER IF NOT EXISTS 'apoio_sus_teste'@'localhost'
+    IDENTIFIED BY 'senha-de-teste';
+
+GRANT ALL PRIVILEGES ON apoio_usuario_sus_teste.*
+    TO 'apoio_sus_teste'@'localhost';
 ```
 
-2. No PowerShell, a partir da raiz do repositório:
+No PowerShell:
 
 ```powershell
 cd backend
-$env:TESTE_MYSQL_URL = "jdbc:mysql://localhost:3306/apoio_usuario_sus_teste?user=apoio_sus&password=sua-senha-do-mysql&useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL"
+$env:TESTE_MYSQL_URL = "jdbc:mysql://localhost:3306/apoio_usuario_sus_teste?user=apoio_sus_teste&password=senha-de-teste&useUnicode=true&characterEncoding=utf8&connectionTimeZone=LOCAL"
 .\mvnw.cmd test
 ```
 
-**Atenção:** a suíte apaga as tabelas do banco informado em `TESTE_MYSQL_URL`. Nunca informe o banco utilizado pelo aplicativo.
+### Opção B — SQLite temporário
 
-Como alternativa local, é possível executar a suíte com bancos SQLite temporários:
+Para executar os testes sem configurar um MySQL de testes, selecione explicitamente SQLite:
 
 ```powershell
 cd backend
@@ -188,50 +317,58 @@ $env:TESTE_SQLITE = "true"
 .\mvnw.cmd test
 ```
 
-O CNES é simulado nos testes de integração; a suíte não precisa consultar o serviço público durante sua execução. A contagem de 100 corresponde aos casos anotados nos testes do repositório; execute o comando acima para confirmar o resultado no ambiente local.
+Nessa opção, os testes criam arquivos SQLite temporários dentro de `backend/target/testes`. Os testes de integração com o CNES utilizam um servidor simulado (`CnesFalso`), não dependendo de uma chamada real ao serviço público.
 
-## Roteiro de validação manual
+## Endpoints da API
 
-1. **Cadastro:** preencher nome, e-mail, senha, confirmação e data de nascimento opcional; marcar a caixa de aceite dos Termos de Uso e da Política de Privacidade.
-2. **Login:** acessar com a conta criada e verificar o redirecionamento para a tela inicial.
-3. **Perfil de saúde:** consultar, editar e limpar peso, altura, tipo sanguíneo, alergias e observações.
-4. **Vacinas:** cadastrar, editar e excluir um registro; conferir a lista.
-5. **Medicamentos:** cadastrar, editar e excluir; verificar a separação entre Em uso e Histórico.
-6. **Unidades de saúde:** pesquisar um município paulista, carregar a lista, alternar entre as visualizações disponíveis, pesquisar pelo nome/endereço e abrir uma rota.
-7. **Orientações:** testar busca textual e filtros Todas, Prevenção, Doenças e Hábitos.
-8. **Sintomas:** testar uma descrição reconhecida, um sinal de alerta (por exemplo, falta de ar) e uma descrição sem palavras reconhecidas.
-9. **Conta:** atualizar nome/data de nascimento e testar a exclusão da conta.
-10. **Recuperação de senha:** solicitar o código, obtê-lo no log do backend e redefinir a senha. Não há envio de e-mail.
+Todas as rotas utilizam o prefixo `/api`. As rotas protegidas exigem o cabeçalho `Authorization: Bearer <token>`, obtido após o login.
 
-## Endpoints
+| Método | Rota | Descrição | Autenticação |
+| --- | --- | --- | --- |
+| `GET` | `/api/ping` | Verifica se a API está ativa | Não |
+| `POST` | `/api/auth/cadastro` | Cadastra um usuário | Não |
+| `POST` | `/api/auth/login` | Autentica o usuário | Não |
+| `POST` | `/api/auth/logout` | Encerra a sessão atual | Sim |
+| `POST` | `/api/auth/recuperar-senha` | Solicita código de recuperação | Não |
+| `POST` | `/api/auth/redefinir-senha` | Redefine a senha com o código recebido | Não |
+| `GET`, `PUT`, `DELETE` | `/api/usuarios/me` | Consulta, atualiza ou exclui a conta | Sim |
+| `GET`, `PUT`, `DELETE` | `/api/perfil` | Consulta, atualiza ou limpa o perfil de saúde | Sim |
+| `GET`, `POST` | `/api/vacinas` | Lista ou cadastra vacinas | Sim |
+| `GET`, `PUT`, `DELETE` | `/api/vacinas/{id}` | Consulta, atualiza ou exclui um registro de vacina | Sim |
+| `GET`, `POST` | `/api/medicamentos` | Lista ou cadastra medicamentos | Sim |
+| `GET`, `PUT`, `DELETE` | `/api/medicamentos/{id}` | Consulta, atualiza ou exclui um medicamento | Sim |
+| `GET` | `/api/unidades-saude/municipios` | Lista os municípios de São Paulo | Sim |
+| `GET` | `/api/unidades-saude/upas?municipio={codigo}&inicio={registro}` | Consulta estabelecimentos no CNES; nome da rota legado | Sim |
+| `GET` | `/api/orientacoes` | Retorna os conteúdos de orientação do arquivo JSON | Sim |
+| `POST` | `/api/sintomas/analise` | Analisa o texto informado com regras locais | Sim |
 
-Prefixo `/api`. As rotas protegidas exigem `Authorization: Bearer <token>`.
+Exemplos de requisições HTTP estão disponíveis em `backend/requests.http`.
 
-| Rota | Método(s) | Finalidade |
-| --- | --- | --- |
-| `/ping` | GET | Verificar se a API está ativa |
-| `/auth/cadastro`, `/auth/login` | POST | Cadastro e autenticação |
-| `/auth/logout` | POST | Encerrar a sessão atual |
-| `/auth/recuperar-senha`, `/auth/redefinir-senha` | POST | Recuperação de senha |
-| `/usuarios/me` | GET, PUT, DELETE | Consultar, atualizar e excluir a conta |
-| `/perfil` | GET, PUT, DELETE | Consultar, atualizar e limpar o perfil |
-| `/vacinas` | GET, POST | Listar e cadastrar vacinas |
-| `/vacinas/{id}` | GET, PUT, DELETE | Consultar, editar e excluir uma vacina |
-| `/medicamentos` | GET, POST | Listar e cadastrar medicamentos |
-| `/medicamentos/{id}` | GET, PUT, DELETE | Consultar, editar e excluir um medicamento |
-| `/unidades-saude/municipios` | GET | Listar municípios de São Paulo |
-| `/unidades-saude/upas?municipio=&inicio=` | GET | Consultar estabelecimentos CNES; o caminho mantém o nome legado |
-| `/orientacoes` | GET | Consultar orientações locais |
-| `/sintomas/analise` | POST | Analisar texto com regras informativas |
+## Segurança e privacidade
 
-## Segurança e limites de uso
+- As senhas são armazenadas com hash PBKDF2-HMAC-SHA256 e salt aleatório individual.
+- Os tokens de sessão são gerados aleatoriamente; o banco armazena o hash SHA-256 do token, não o valor original.
+- As sessões possuem validade configurável e podem ser revogadas pelo logout.
+- As rotas de dados pessoais verificam a sessão e associam as operações ao usuário autenticado.
+- O código de recuperação também é armazenado no banco como hash, mas é exibido em texto no log do backend para viabilizar o fluxo acadêmico.
+- A configuração padrão utiliza HTTP, sem TLS. Não exponha a aplicação diretamente à internet nem utilize essa configuração como implantação de produção.
 
-- Senhas são armazenadas com hash PBKDF2-HMAC-SHA256 e salt individual.
-- O token de sessão é aleatório; o banco armazena seu hash SHA-256, não o token original.
-- Sessões têm validade configurável e podem ser revogadas no logout.
-- Os endpoints de dados pessoais verificam a sessão e restringem cada registro ao usuário autenticado.
-- As credenciais do MySQL são fornecidas por configuração/variáveis de ambiente.
-- A comunicação local está configurada em HTTP, sem TLS. Não utilizar a configuração acadêmica como implantação de produção.
-- Não há limite de tentativas para login e recuperação de senha.
-- O código de recuperação é exibido no log do backend em vez de ser enviado por e-mail.
-- O conteúdo informativo e as regras de sintomas necessitam de validação por fontes e profissionais de saúde antes de qualquer uso fora do contexto acadêmico.
+## Limitações e escopo
+
+O projeto foi desenvolvido em contexto acadêmico. Não estão implementados:
+
+- Integração com prontuários, cadastros internos ou sistemas privados do SUS.
+- Agendamento de consultas ou exames.
+- Consulta e gerenciamento de campanhas públicas de vacinação.
+- Sincronização com a caderneta nacional de vacinação ou identificação automática de doses pendentes.
+- Lembretes e notificações de medicamentos.
+- Geolocalização, cálculo de distância ou mapa com marcadores dinâmicos.
+- Geração de orientações por inteligência artificial ou diagnóstico automatizado.
+- Histórico persistente das análises de sintomas.
+- Envio de código de recuperação de senha por e-mail.
+
+Os conteúdos de orientação e as regras de sintomas são materiais informativos estáticos e devem ser tratados como apoio educativo, não como aconselhamento médico.
+
+## Licença e finalidade
+
+Este repositório foi desenvolvido para fins acadêmicos como Trabalho de Conclusão do Curso Técnico em Desenvolvimento de Sistemas. Não é um produto médico nem substitui sistemas oficiais ou serviços profissionais de saúde.
